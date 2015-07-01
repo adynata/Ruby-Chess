@@ -10,11 +10,11 @@ class EmptySquare
 end
 
 class Piece
-  attr_accessor :color, :board, :current_position
+  attr_accessor :color, :board #, :current_position
   def initialize(color, board)
     @color = color
     @board = board
-    @current_position = [0, 0]
+    @current_position = [3, 3]
   end
 
   def get_all_moves
@@ -164,6 +164,32 @@ class Knight < Piece
   end
 
 end
+
+class Pawn < Piece
+  attr_accessor :moved
+
+  def initialize(color, board)
+    super
+    @moved = false
+  end
+
+  def to_view
+    " ♙ "
+  end
+
+  def get_all_moves
+    mover = color == :w ? -1 : 1
+    moves = []
+    possible = [current_position[0] + mover, current_position[1]]
+    moves << possible if valid_move?(possible)
+    unless moved
+      possible[0] = possible[0] + 1
+      moves << possible if valid_move?(possible)
+    end
+    moves
+  end
+end
+
 
 # module Rookable
 

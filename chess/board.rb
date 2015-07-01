@@ -25,10 +25,10 @@ class Board
   end
 
   def populate_board
-    grid.first = populate_royalty(:b)
+    grid[0] = populate_royalty(:b)
     grid[1] = populate_pawns(:b)
     grid[6] = populate_pawns(:w)
-    grid.last = populate_royalty(:w)
+    grid[7] = populate_royalty(:w)
   end
 
   def populate_royalty(color)
@@ -86,6 +86,6 @@ class Board
     end
   end
 end
-
-p Knight.new(:white, Board.new).get_all_moves
-p King.new(:white, Board.new).get_all_moves
+#
+# p Knight.new(:white, Board.new).get_all_moves
+# p King.new(:white, Board.new).get_all_moves
