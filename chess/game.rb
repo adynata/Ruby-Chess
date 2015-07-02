@@ -21,17 +21,22 @@ class Game
   end
 
   def play_turn
-    player = @players.first
-    get_start_pos
-    start_pos = board.selected_piece
-    valid_moves = board.moves_around_piece(start_pos)
-    # get_end_pos
-    end_pos = board.selected_piece
-    until valid_moves.include?(end_pos)
-      get_end_pos
+    begin
+      get_start_pos
+      start_pos = board.selected_piece
+      valid_moves = board.moves_around_piece(start_pos)
+      # get_end_pos
       end_pos = board.selected_piece
+      until valid_moves.include?(end_pos)
+        get_end_pos
+        end_pos = board.selected_piece
+      end
+
+      board.move(start_pos, end_pos)
+    rescue InvalidMove
+      puts "Check"
+      retry
     end
-    board.move(start_pos, end_pos)
     @players.rotate!
 
 
@@ -41,7 +46,7 @@ class Game
     begin
       until board.move_in_process
         board.render
-        board.move_cursor(@players.first.color)
+        board.move_cursor(current_player.color)
       end
     rescue InvalidMove
       puts "Hey! That's not a piece."
@@ -65,6 +70,10 @@ class Game
 
   def game_won?
     false
+  end
+
+  def current_player
+    @players.first
   end
 
 end

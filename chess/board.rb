@@ -84,19 +84,26 @@ class Board
     end
   end
 
-  def move_back(original_position, new_position, endpiece)
+  def move_back(original_position, new_position, end_piece)
     piece = self[*new_position]
-    self[*new_position] = endpiece
+    self[*new_position] = end_piece
     self[*original_position] = piece
   end
 
   def move(start_pos, end_pos)
     piece = self[*start_pos]
-    opponent_color = piece.opposite_color
+    color = piece.color
+    # opposite_color = piece.opposite_color
     end_piece = self[*end_pos]
     self[*start_pos] = EmptySquare.new
     self[*end_pos] = piece
-    # if in_check?(opponent_color) move_back(endpos, start_pos, endpiece)
+
+    if in_check?(color)
+      move_back(start_pos, end_pos, end_piece)
+      raise InvalidMove
+      #rotate players again
+    end
+
     if piece.is_a?(Pawn)
       piece.moved = true
     end
@@ -115,7 +122,10 @@ class Board
     king_pos = find_king(color)
     grid.each_with_index do |row, idx1|
       row.each_with_index do |space, idx2|
-        return true if moves_around_piece(position).include?(king_pos)
+        if moves_around_piece([idx1, idx2]).include?(king_pos)
+          puts "#{color}: you're in check"
+          return true
+        end
       end
     end
     false
@@ -126,8 +136,10 @@ class Board
   end
 
   def valid_move?(potential_move)
-    on_board?(potential_move) && !is_piece?(potential_move)
+    on_board?(potential_move) && !is_piece?(potential_move) &&
+    !in_check?(color, position)
   end
+
 
   def is_piece?(position)
     !self[*position].is_a?(EmptySquare)

@@ -18,6 +18,7 @@ class Piece
 
   def valid_move?(pos)
     board.valid_move?(pos)
+    board.in_check?
   end
 
   def determine_color(el)

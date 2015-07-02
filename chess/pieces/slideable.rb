@@ -12,7 +12,6 @@ module Slideable
       # debugger
       moves << possible if is_on_board_and_collided?(possible)
     end
-    moves
     prune_same_colors(moves)
   end
 end
