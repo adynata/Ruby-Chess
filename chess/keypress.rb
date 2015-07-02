@@ -50,8 +50,10 @@ module Readable
     when "\e[3~"
       return "ALTERNATE DELETE"
     when "\u0003"
-      return "CONTROL-C"
       exit 0
+      # raise Interrupt
+      # return "CONTROL-C"
+
     when /^.$/
       return "SINGLE CHAR HIT: #{c.inspect}"
     else

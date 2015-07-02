@@ -1,7 +1,10 @@
-require 'byebug'
+# require 'byebug'
 
 class Player
-  def initialize
+  attr_reader :color
+
+  def initialize(color)
+    @color = color
   end
 
 end
