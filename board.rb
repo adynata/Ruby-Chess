@@ -167,8 +167,9 @@ def render_around_piece(piece)
         print square.to_view.colorize(background: :red)
       elsif piece == [idx1, idx2]
         print square.to_view.colorize(background: :magenta)
-      elsif moves_around_piece(piece).include?([idx1, idx2])
-        print square.to_view.colorize(background: :green)
+      # elsif moves_around_piece(piece).include?([idx1, idx2])
+      #   p '2nd elsif'
+      #   print square.to_view.colorize(background: :green)
       elsif (idx1 + idx2).even?
         print square.to_view.colorize(background: :blue)
       else
