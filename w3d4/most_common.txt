@@ -1,6 +1,0 @@
-cat
-cat
-of
-barn
-cat
-hello
