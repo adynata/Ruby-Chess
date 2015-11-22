@@ -3,7 +3,7 @@ require_relative 'pieces'
 class Pawn < Piece
   attr_accessor :moved
 
-  def initialize(color, board)
+  def initialize(color, board, pos)
     super
     @moved = false
   end
@@ -13,7 +13,10 @@ class Pawn < Piece
   end
 
   def get_all_moves(current_position)
+    # puts "get all moves"
     mover = color == :w ? -1 : 1
+    # return [[5,4]]
+    # front_check(current_position, mover)
     front_check(current_position, mover) + wing_check(current_position, mover)
   end
 

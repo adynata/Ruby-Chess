@@ -14,6 +14,7 @@ class Knight < Piece
     [1, -2],
     [2, -1]
   ]
+
   def to_view
     determine_color(" ♘ ")
   end

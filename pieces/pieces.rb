@@ -1,12 +1,13 @@
 require 'colorize'
 
 class Piece
-  attr_accessor :color, :board, :opposite_color #, :current_position
+  attr_accessor :color, :board, :opposite_color, :pos #, :current_position
   COLORS = [:w, :b]
 
-  def initialize(color, board)
+  def initialize(color, board, pos)
     @color = color
     @board = board
+    @pos = pos
     @opposite_color = COLORS[COLORS.index(@color) - 1]
     # @current_position = [3, 3] only comes from board
   end
@@ -16,9 +17,9 @@ class Piece
     # puts "Hasn't been defined yet"
   end
 
-  def valid_move?(pos)
-    board.valid_move?(pos)
-    board.in_check?(color)
+  def valid_move?(position)
+    board.valid_move?(position, color)
+    #  && !board.dup.in_check?(color)
   end
 
   def determine_color(el)
@@ -26,8 +27,10 @@ class Piece
   end
 
   def prune_same_colors(moves)
+    # p moves
     moves.select do |coord|
-      @board[*coord].color == opposite_color || !@board[*coord].color #references emptysquare
+      @board[*coord].color == opposite_color || !@board[*coord].color
+      # p coord #references emptysquare
     end
   end
 

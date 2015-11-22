@@ -20,11 +20,11 @@ class Board
     "RETURN" => [0, 0]
   }
 
-  def initialize
+  def initialize(fill_board = true)
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
     @cursor = [7, 0]
     @move_in_process = false
-    populate_board
+    populate_board if fill_board
   end
 
   def [](row, col)
@@ -37,27 +37,33 @@ class Board
 
 
   def populate_board
-    grid[0] = populate_royalty(:b)
-    grid[1] = populate_pawns(:b)
-    grid[6] = populate_pawns(:w)
-    grid[7] = populate_royalty(:w)
+    grid[0] = populate_royalty(:b, 0)
+    grid[1] = populate_pawns(:b, 1)
+    grid[6] = populate_pawns(:w, 6)
+    grid[7] = populate_royalty(:w, 7)
   end
 
-  def populate_royalty(color)
+  def populate_royalty(color, row)
     [
-      Rook.new(color, self),
-      Knight.new(color, self),
-      Bishop.new(color, self),
-      Queen.new(color, self),
-      King.new(color, self),
-      Bishop.new(color, self),
-      Knight.new(color, self),
-      Rook.new(color, self)
+      Rook.new(color, self, [row, 0]),
+      Knight.new(color, self, [row, 1]),
+      Bishop.new(color, self, [row, 2]),
+      Queen.new(color, self, [row, 3]),
+      King.new(color, self, [row, 4]),
+      Bishop.new(color, self, [row, 5]),
+      Knight.new(color, self, [row, 6]),
+      Rook.new(color, self, [row, 7])
     ]
   end
 
-  def populate_pawns(color)
-    Array.new(8) { Pawn.new(color, self) }
+  def populate_pawns(color, row)
+    arr = []
+    0.upto(7) do |col|
+      arr << Pawn.new(color, self, [row, col])
+    end
+
+    arr
+    # Array.new(8) { Pawn.new(color, self) }
   end
 
   def move_cursor(player_color)
@@ -119,6 +125,7 @@ class Board
   end
 
   def in_check?(color)
+    debugger
     king_pos = find_king(color)
     grid.each_with_index do |row, idx1|
       row.each_with_index do |space, idx2|
@@ -132,15 +139,30 @@ class Board
   end
 
   def on_board?(potential_move)
-    p potential_move
+    # p potential_move
     potential_move.all? { |pos| pos.between?(0, 7) }
   end
 
-  def valid_move?(potential_move)
+  def valid_move?(potential_move, color)
+    # p 'board valid move'
+    # debugger
     on_board?(potential_move) && !is_piece?(potential_move) &&
-    !in_check?(color)
+    !dup.in_check?(color)
   end
 
+  def pieces
+    grid.flatten.reject { |piece| piece.color == false }
+  end
+
+  def dup
+    new_board = Board.new(false)
+    pieces.each do |piece|
+      piece.class.new(piece.color, new_board, piece.pos)
+    end
+
+    new_board
+    # dup.grid = grid
+  end
 
   def is_piece?(position)
     !self[*position].is_a?(EmptySquare)
@@ -168,9 +190,9 @@ def render_around_piece(piece)
         print square.to_view.colorize(background: :red)
       elsif piece == [idx1, idx2]
         print square.to_view.colorize(background: :magenta)
-      # elsif moves_around_piece(piece).include?([idx1, idx2])
-      #   p '2nd elsif'
-      #   print square.to_view.colorize(background: :green)
+      elsif moves_around_piece(piece).include?([idx1, idx2])
+        # p '2nd elsif'
+        print square.to_view.colorize(background: :green)
       elsif (idx1 + idx2).even?
         print square.to_view.colorize(background: :blue)
       else
