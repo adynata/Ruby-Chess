@@ -132,12 +132,13 @@ class Board
   end
 
   def on_board?(potential_move)
+    p potential_move
     potential_move.all? { |pos| pos.between?(0, 7) }
   end
 
   def valid_move?(potential_move)
     on_board?(potential_move) && !is_piece?(potential_move) &&
-    !in_check?(color, position)
+    !in_check?(color)
   end
 
 
