@@ -17,8 +17,8 @@ class Piece
     # puts "Hasn't been defined yet"
   end
 
-  def valid_move?(position)
-    # board.valid_move?(position, color)
+  def valid_move?(position, color)
+    board.valid_move?(position, color)
     # && !board.dup.in_check?(color)
   end
 
@@ -27,9 +27,19 @@ class Piece
   end
 
   def prune_same_colors(moves)
-    # p moves
+    p moves
     moves.select do |coord|
-      @board[*coord].color == opposite_color || !@board[*coord].color
+      p coord
+      p @board.grid[1][2].color
+      # debugger
+      # p opposite_color
+      # p color
+      # p idx1 = coord[0]
+      # p idx2 = coord[1]
+      # p @board.grid[idx1][idx2]
+      if @board.grid[coord[0]][coord[1]]
+        @board.grid[*coord[0]][*coord[1]] == opposite_color || !@board.grid[*coord[0]][*coord[1]]
+      end
       # p coord #references emptysquare
     end
   end

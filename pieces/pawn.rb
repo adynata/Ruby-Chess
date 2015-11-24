@@ -17,10 +17,7 @@ class Pawn < Piece
     mover = color == :w ? -1 : 1
     # return [[5,4]]
     # front_check(current_position, mover)
-    moves = []
-    moves << front_check(current_position, mover)
-    moves << wing_check(current_position, mover)
-    moves
+    front_check(current_position, mover) + wing_check(current_position, mover)
   end
 
   def front_check(pos, mover)

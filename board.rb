@@ -104,12 +104,13 @@ class Board
     end_piece = self[*end_pos]
     self[*start_pos] = EmptySquare.new
     self[*end_pos] = piece
+    piece.pos = end_pos
 
-    if in_check?(color)
-      move_back(start_pos, end_pos, end_piece)
-      raise InvalidMove
-      #rotate players again
-    end
+    # if in_check?(color)
+    #   move_back(start_pos, end_pos, end_piece)
+    #   raise InvalidMove
+    #   #rotate players again
+    # end
 
     if piece.is_a?(Pawn)
       piece.moved = true
@@ -159,7 +160,8 @@ class Board
   def valid_move?(potential_move, color)
     # p 'board valid move'
     # debugger
-    on_board?(potential_move) && !is_piece?(potential_move) && !dup.in_check?(color)
+    on_board?(potential_move) && (!is_piece?(potential_move) )
+    # && !dup.in_check?(color)
   end
 
   def pieces
@@ -216,7 +218,11 @@ end
 
 
   def moves_around_piece(position)
-    self[*position].get_all_moves(position).flatten(1)
+    # return[[2,4], [5,6], [1,0]]
+    moves = self[*position].get_all_moves(position)
+    # then prune out valid moves
+    # p moves
+    moves
   end
 end
 #

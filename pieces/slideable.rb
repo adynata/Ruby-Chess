@@ -7,14 +7,14 @@ module Slideable
       possible = translate_from_deltas(current_position, delta)
 
       # debugger
-      if valid_move?(possible)
+      if valid_move?(possible, color)
         # debugger
         moves << possible
-        possible = translate_from_deltas(moves.last, delta)
       end
       # debugger
-      moves << possible if is_on_board_and_collided?(possible)
+      # moves << possible if is_on_board_and_collided?(possible)
     end
-    prune_same_colors(moves)
+    moves
+    # prune_same_colors(moves)
   end
 end
