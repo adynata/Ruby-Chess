@@ -18,8 +18,8 @@ class Piece
   end
 
   def valid_move?(position)
-    board.valid_move?(position, color)
-    #  && !board.dup.in_check?(color)
+    # board.valid_move?(position, color)
+    # && !board.dup.in_check?(color)
   end
 
   def determine_color(el)

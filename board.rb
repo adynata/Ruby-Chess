@@ -7,8 +7,8 @@ class InvalidMove < StandardError
 end
 
 class Board
-  attr_reader :grid
-  attr_accessor :cursor, :move_in_process, :selected_piece
+  # attr_reader
+  attr_accessor :cursor, :move_in_process, :selected_piece, :grid
 
   include Readable
 
@@ -37,6 +37,7 @@ class Board
 
 
   def populate_board
+    p "populating board"
     grid[0] = populate_royalty(:b, 0)
     grid[1] = populate_pawns(:b, 1)
     grid[6] = populate_pawns(:w, 6)
@@ -116,6 +117,7 @@ class Board
   end
 
   def find_king(color)
+    # debugger
     grid.each_with_index do |row, idx1|
       row.each_with_index do |space, idx2|
         return [idx1, idx2] if space.is_a?(King) && space.color == color
@@ -125,17 +127,28 @@ class Board
   end
 
   def in_check?(color)
-    debugger
+    # p "in check?"
     king_pos = find_king(color)
-    grid.each_with_index do |row, idx1|
-      row.each_with_index do |space, idx2|
-        if moves_around_piece([idx1, idx2]).include?(king_pos)
-          puts "#{color}: you're in check"
-          return true
-        end
-      end
+
+    # debugger
+
+    pieces.any? do |p|
+      # p.color != color &&
+      # debugger
+      p.get_all_moves(p.pos).include?(king_pos)
     end
-    false
+    puts "through loop"
+    # grid.each do |row|
+    #   # p row
+    #   row.each do |piece|
+    #     p "piece = #{piece}"
+    #     if piece.get_all_moves(piece.pos).include?(king_pos)
+    #       puts "#{color}: you're in check"
+    #       return true
+    #     end
+    #   end
+    # end
+    true
   end
 
   def on_board?(potential_move)
@@ -146,8 +159,7 @@ class Board
   def valid_move?(potential_move, color)
     # p 'board valid move'
     # debugger
-    on_board?(potential_move) && !is_piece?(potential_move) &&
-    !dup.in_check?(color)
+    on_board?(potential_move) && !is_piece?(potential_move) && !dup.in_check?(color)
   end
 
   def pieces
@@ -156,10 +168,7 @@ class Board
 
   def dup
     new_board = Board.new(false)
-    pieces.each do |piece|
-      piece.class.new(piece.color, new_board, piece.pos)
-    end
-
+    new_board.grid = grid
     new_board
     # dup.grid = grid
   end
@@ -190,6 +199,7 @@ def render_around_piece(piece)
         print square.to_view.colorize(background: :red)
       elsif piece == [idx1, idx2]
         print square.to_view.colorize(background: :magenta)
+        # debugger
       elsif moves_around_piece(piece).include?([idx1, idx2])
         # p '2nd elsif'
         print square.to_view.colorize(background: :green)
@@ -206,7 +216,7 @@ end
 
 
   def moves_around_piece(position)
-    self[*position].get_all_moves(position)
+    self[*position].get_all_moves(position).flatten(1)
   end
 end
 #
