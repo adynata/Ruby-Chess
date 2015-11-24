@@ -6,6 +6,7 @@ module Steppable
     # return [[[1,2], [2,3]]]
 
     deltas.each do |delta|
+
       possible = translate_from_deltas(current_position, delta)
       if valid_move?(possible, color) || (is_on_board_and_collided?(possible) &&  board[*possible].color == opposite_color)
         # p "opposite_color #{opposite_color}"

@@ -158,7 +158,6 @@ class Board
   end
 
   def valid_move?(potential_move, color)
-    # p 'board valid move'
     # debugger
     on_board?(potential_move) && (!is_piece?(potential_move) )
     # && !dup.in_check?(color)
