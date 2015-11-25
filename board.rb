@@ -1,24 +1,12 @@
 require_relative 'pieces/piece_junction'
 require_relative 'keypress'
 
-# require 'colorize'
-
 class InvalidMove < StandardError
 end
 
 class Board
   # attr_reader
   attr_accessor :cursor, :move_in_process, :selected_piece, :grid
-
-  include Readable
-
-  MOVE_MAP = {
-    "DOWN ARROW" => [1, 0],
-    "RIGHT ARROW" => [0, 1],
-    "UP ARROW" => [-1, 0],
-    "LEFT ARROW" => [0, -1],
-    "RETURN" => [0, 0]
-  }
 
   def initialize(fill_board = true)
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
@@ -62,43 +50,44 @@ class Board
     0.upto(7) do |col|
       arr << Pawn.new(color, self, [row, col])
     end
-
     arr
-    # Array.new(8) { Pawn.new(color, self) }
   end
 
-  def move_cursor(player_color)
-    potential_move = get_move
-    until on_board?(potential_move)
-      potential_move = get_move
-    end
-    if @cursor == potential_move
-      raise InvalidMove unless good_selection?(potential_move, player_color)
-      @move_in_process = !@move_in_process
-      @selected_piece = potential_move
-    end
-    @cursor = potential_move
-  end
-
-  def good_selection?(potential_move, player_color)
-    if !@move_in_process
-      is_piece?(potential_move) && player_color == self[*potential_move].color
-    else
-      moves_around_piece(@selected_piece).include?(potential_move)
-    end
-  end
+  # def move_cursor(player_color)
+  #   potential_move = get_move
+  #   until on_board?(potential_move)
+  #     potential_move = get_move
+  #   end
+  #   if @cursor == potential_move
+  #     raise InvalidMove unless good_selection?(potential_move, player_color)
+  #     @move_in_process = !@move_in_process
+  #     @selected_piece = potential_move
+  #   end
+  #   @cursor = potential_move
+  # end
+  #
+  # def good_selection?(potential_move, player_color)
+  #   if !@move_in_process
+  #     is_piece?(potential_move) && player_color == self[*potential_move].color
+  #   else
+  #     moves_around_piece(@selected_piece).include?(potential_move)
+  #   end
+  # end
 
   def move(color, start_pos, end_pos)
 
     piece = self[*start_pos]
-    raise 'from position is empty' if piece.is_a?(EmptySquare)
-    if piece.color != color
+
+    if piece.is_a?(EmptySquare)
+      raise 'from position is empty'
+    elsif piece.color != color
       raise "you can only move your own piece"
     elsif !piece.all_moves.include?(end_pos)
       raise "you're not permitted to put your piece there"
     elsif !piece.valid_moves.include?(end_pos)
       raise "you can't move into check"
     end
+    # debugger
 
     move_piece!(start_pos, end_pos)
   end
@@ -166,7 +155,7 @@ class Board
   end
 
   def pieces
-    grid.flatten.reject { |piece| piece.color == false }
+    grid.flatten.reject { |piece| !piece.color }
   end
 
   def dup
@@ -180,60 +169,8 @@ class Board
   end
 
   def is_piece?(position)
-    !self[*position].is_a?(EmptySquare)
-  end
-
-  def get_move
-    next_move = show_single_key
-    cursor_diff = MOVE_MAP[next_move]
-    [cursor, cursor_diff].transpose.map {|x| x.reduce(:+)}
-  end
-
-  def render(notifications, current_player)
-    system "clear"
-    if move_in_process
-      render_around_piece(selected_piece)
-      notifications.each do |key, val|
-        puts "      #{val}"
-      end
-      puts "      current player is: #{current_player.color}"
-    else
-      render_around_piece(cursor)
-      notifications.each do |key, val|
-        puts "      #{val}"
-      end
-      puts "      current player is: #{current_player.color}"
-    end
-  end
-
-  def render_around_piece(piece)
-    puts
-    puts
-    grid.each_with_index do |row, idx1|
-      print "      "
-      row.each_with_index do |square, idx2|
-        if piece != cursor && cursor == [idx1, idx2]
-          print square.to_view.colorize(background: :green)
-        elsif piece == [idx1, idx2]
-          print square.to_view.colorize(background: :green)
-          # debugger
-        elsif moves_around_piece(piece).include?([idx1, idx2])
-          # p '2nd elsif'
-          print square.to_view.colorize(background: :light_green)
-        elsif (idx1 + idx2).even?
-          print square.to_view.colorize(background: :blue)
-        else
-          print square.to_view.colorize(background: :light_red)
-        end
-      end
-      puts
-
-    end
+    self[*position].color
   end
 
 
-
-  def moves_around_piece(position)
-    moves = self[*position].all_moves
-  end
 end

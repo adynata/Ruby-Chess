@@ -20,6 +20,6 @@ class King < Piece
   end
 
   def to_view
-    determine_color(" ♔ ")
+    determine_color(" ♚ ")
   end
 end

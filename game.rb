@@ -1,16 +1,18 @@
 require_relative 'board'
 require_relative 'player'
+require_relative 'display'
+
 require 'byebug'
 
 
 
 class Game
-  attr_accessor :board, :notifications
+  attr_accessor :board, :notifications, :display
 
   def initialize
     @board = Board.new
     @players = [Player.new(:white), Player.new(:black)]
-    @notifications = {}
+    @display = Display.new(@board)
   end
 
 
@@ -27,15 +29,18 @@ class Game
     begin
       get_start_pos
       start_pos = board.selected_piece
-      valid_moves = board.moves_around_piece(start_pos)
+      valid_moves = display.moves_around_piece(start_pos)
       end_pos = board.selected_piece
       until valid_moves.include?(end_pos)
         get_end_pos
         end_pos = board.selected_piece
+        if end_pos == start_pos
+
+        end
       end
       board.move(current_player.color, start_pos, end_pos)
     rescue StandardError => e
-      notifications[:error] = e.message
+      @display.notifications[:error] = e.message
       retry
     end
     @players.rotate!
@@ -47,11 +52,11 @@ class Game
     begin
       reset!
       until board.move_in_process
-        board.render(@notifications, current_player)
-        board.move_cursor(current_player.color)
+        display.render(current_player)
+        display.move_cursor(current_player.color)
       end
     rescue InvalidMove
-      notifications[:error] = "Invalid move"
+      @display.notifications[:error] = "Invalid move"
       retry
     end
   end
@@ -59,11 +64,11 @@ class Game
   def get_end_pos
     begin
       while board.move_in_process
-        board.render(@notifications, current_player)
-        board.move_cursor(@players.first.color)
+        display.render(current_player)
+        display.move_cursor(current_player.color)
       end
     rescue InvalidMove
-      notifications[:error] = "Hey! That piece can't move there."
+      @display.notifications[:error] = "Hey! That piece can't move there."
       sleep(1)
       retry
     end
@@ -78,24 +83,24 @@ class Game
   end
 
   def reset!
-    @notifications.delete(:error)
+    display.notifications.delete(:error)
   end
 
   def uncheck!
-    @notifications.delete(:check)
+    display.notifications.delete(:check)
   end
 
   def set_check!
-    @notifications[:check] = "Check!"
+    display.notifications[:check] = "Board is in check!"
   end
 
   def notify_players
-  if board.in_check?(current_player.color)
-    set_check!
-  else
-    uncheck!
+    if board.in_check?(current_player.color)
+      set_check!
+    else
+      uncheck!
+    end
   end
-end
 
 end
 

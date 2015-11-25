@@ -16,7 +16,7 @@ class Knight < Piece
   ]
 
   def to_view
-    determine_color(" ♘ ")
+    determine_color(" ♞ ")
   end
 
   def deltas
