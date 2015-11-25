@@ -9,7 +9,7 @@ class Game
 
   def initialize
     @board = Board.new
-    @players = [Player.new(:w), Player.new(:b)]
+    @players = [Player.new(:white), Player.new(:black)]
     @notifications = {}
   end
 
@@ -41,17 +41,17 @@ class Game
     @players.rotate!
     notify_players
 
-
   end
 
   def get_start_pos
     begin
+      reset!
       until board.move_in_process
         board.render(@notifications, current_player)
         board.move_cursor(current_player.color)
       end
     rescue InvalidMove
-      raise "Invalid move"
+      notifications[:error] = "Invalid move"
       retry
     end
   end
@@ -63,7 +63,7 @@ class Game
         board.move_cursor(@players.first.color)
       end
     rescue InvalidMove
-      puts "Hey! That piece can't move there."
+      notifications[:error] = "Hey! That piece can't move there."
       sleep(1)
       retry
     end

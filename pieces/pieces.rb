@@ -2,7 +2,7 @@ require 'colorize'
 
 class Piece
   attr_accessor :color, :board, :opposite_color, :pos #, :current_position
-  COLORS = [:w, :b]
+  COLORS = [:white, :black]
 
   def initialize(color, board, pos)
     @color = color
@@ -33,7 +33,7 @@ class Piece
   end
 
   def determine_color(el)
-    color == :w ? el :  el.colorize(:black)
+    color == :white ? el.colorize(:white) :  el.colorize(:black)
   end
 
   def prune_same_colors(moves)

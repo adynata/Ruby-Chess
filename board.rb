@@ -38,10 +38,10 @@ class Board
 
   def populate_board
     p "populating board"
-    grid[0] = populate_royalty(:b, 0)
-    grid[1] = populate_pawns(:b, 1)
-    grid[6] = populate_pawns(:w, 6)
-    grid[7] = populate_royalty(:w, 7)
+    grid[0] = populate_royalty(:black, 0)
+    grid[1] = populate_pawns(:black, 1)
+    grid[6] = populate_pawns(:white, 6)
+    grid[7] = populate_royalty(:white, 7)
   end
 
   def populate_royalty(color, row)
@@ -194,33 +194,36 @@ class Board
     if move_in_process
       render_around_piece(selected_piece)
       notifications.each do |key, val|
-        puts "#{val}"
+        puts "      #{val}"
       end
-      puts "current player is: #{current_player.color}"
+      puts "      current player is: #{current_player.color}"
     else
       render_around_piece(cursor)
       notifications.each do |key, val|
-        puts "#{val}"
+        puts "      #{val}"
       end
-      puts "current player is: #{current_player.color}"
+      puts "      current player is: #{current_player.color}"
     end
   end
 
   def render_around_piece(piece)
+    puts
+    puts
     grid.each_with_index do |row, idx1|
+      print "      "
       row.each_with_index do |square, idx2|
         if piece != cursor && cursor == [idx1, idx2]
-          print square.to_view.colorize(background: :red)
+          print square.to_view.colorize(background: :green)
         elsif piece == [idx1, idx2]
-          print square.to_view.colorize(background: :magenta)
+          print square.to_view.colorize(background: :green)
           # debugger
         elsif moves_around_piece(piece).include?([idx1, idx2])
           # p '2nd elsif'
-          print square.to_view.colorize(background: :green)
+          print square.to_view.colorize(background: :light_green)
         elsif (idx1 + idx2).even?
           print square.to_view.colorize(background: :blue)
         else
-          print square.to_view.colorize(background: :yellow)
+          print square.to_view.colorize(background: :light_red)
         end
       end
       puts

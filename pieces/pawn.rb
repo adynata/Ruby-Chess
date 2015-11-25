@@ -15,7 +15,7 @@ class Pawn < Piece
 
   def all_moves
     # puts "get all moves"
-    mover = color == :w ? -1 : 1
+    mover = color == :white ? -1 : 1
     # return [[5,4]]
     # front_check(current_position, mover)
     front_check(mover) + wing_check(mover)
