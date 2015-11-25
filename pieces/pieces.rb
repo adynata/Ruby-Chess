@@ -12,14 +12,24 @@ class Piece
     # @current_position = [3, 3] only comes from board
   end
 
-  def get_all_moves(current_position)
+  def all_moves
     raise NotImplementedError
-    # puts "Hasn't been defined yet"
+  end
+
+  def valid_moves
+    all_moves.reject { |to_pos| move_into_check?(to_pos) }
   end
 
   def valid_move?(position, color)
+    # puts "piece valid move"
     board.valid_move?(position, color)
     # && !board.dup.in_check?(color)
+  end
+
+  def move_into_check?(to_pos)
+    test_board = board.dup
+    test_board.move_piece!(pos, to_pos)
+    test_board.in_check?(color)
   end
 
   def determine_color(el)

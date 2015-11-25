@@ -12,15 +12,16 @@ class Pawn < Piece
     determine_color(" ♙ ")
   end
 
-  def get_all_moves(current_position)
+
+  def all_moves
     # puts "get all moves"
     mover = color == :w ? -1 : 1
     # return [[5,4]]
     # front_check(current_position, mover)
-    front_check(current_position, mover) + wing_check(current_position, mover)
+    front_check(mover) + wing_check(mover)
   end
 
-  def front_check(pos, mover)
+  def front_check(mover)
     moves = []
     move = [pos[0] + mover, pos[1]]
     unless !board.on_board?(move) || board.is_piece?(move)
@@ -30,7 +31,7 @@ class Pawn < Piece
     moves
   end
 
-  def wing_check(pos, mover)
+  def wing_check(mover)
     moves = [[pos[0] + mover, pos[1] - 1], [pos[0] + mover, pos[1] + 1]]
     moves.select do |move|
       is_on_board_and_collided?(move) &&

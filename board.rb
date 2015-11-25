@@ -68,10 +68,7 @@ class Board
   end
 
   def move_cursor(player_color)
-    # system "clear"
-    # set_cursor_to_default
     potential_move = get_move
-    # debugger
     until on_board?(potential_move)
       potential_move = get_move
     end
@@ -91,65 +88,72 @@ class Board
     end
   end
 
-  def move_back(original_position, new_position, end_piece)
-    piece = self[*new_position]
-    self[*new_position] = end_piece
-    self[*original_position] = piece
+  def move(color, start_pos, end_pos)
+
+    piece = self[*start_pos]
+    raise 'from position is empty' if piece.is_a?(EmptySquare)
+    if piece.color != color
+      raise "you can only move your own piece"
+    elsif !piece.all_moves.include?(end_pos)
+      raise "you're not permitted to put your piece there"
+    elsif !piece.valid_moves.include?(end_pos)
+      raise "you can't move into check"
+    end
+
+    move_piece!(start_pos, end_pos)
   end
 
-  def move(start_pos, end_pos)
+  def move_piece!(start_pos, end_pos)
+    # debugger
     piece = self[*start_pos]
-    color = piece.color
-    # opposite_color = piece.opposite_color
     end_piece = self[*end_pos]
+    raise 'piece cannot move like that' unless piece.all_moves.include?(end_pos)
     self[*start_pos] = EmptySquare.new
     self[*end_pos] = piece
     piece.pos = end_pos
-
-    # if in_check?(color)
-    #   move_back(start_pos, end_pos, end_piece)
-    #   raise InvalidMove
-    #   #rotate players again
-    # end
-
     if piece.is_a?(Pawn)
       piece.moved = true
     end
+
   end
 
+
+
   def find_king(color)
-    # debugger
-    grid.each_with_index do |row, idx1|
-      row.each_with_index do |space, idx2|
-        return [idx1, idx2] if space.is_a?(King) && space.color == color
+
+    pieces.each do |piece|
+      if ((piece.class == King) && (piece.color == color))
+        return piece.pos
       end
     end
-    raise 'no king on board :('
+
+    raise 'no king on board'
+
   end
 
   def in_check?(color)
-    # p "in check?"
+    # return false
     king_pos = find_king(color)
-
-    # debugger
-
-    pieces.any? do |p|
-      # p.color != color &&
+    pieces.each do |piece|
       # debugger
-      p.get_all_moves(p.pos).include?(king_pos)
+
+      moves = []
+      moves = piece.all_moves
+      if moves.include?(king_pos)
+        # puts "#{color}: you're in check"
+        return true
+      end
+
     end
-    puts "through loop"
-    # grid.each do |row|
-    #   # p row
-    #   row.each do |piece|
-    #     p "piece = #{piece}"
-    #     if piece.get_all_moves(piece.pos).include?(king_pos)
-    #       puts "#{color}: you're in check"
-    #       return true
-    #     end
-    #   end
-    # end
-    true
+    false
+  end
+
+  def checkmate?(current_player)
+    color = current_player.color
+    return false unless in_check?(color)
+    pieces.select { |p| p.color == color }.all? do |piece|
+      piece.valid_moves.empty?
+    end
   end
 
   def on_board?(potential_move)
@@ -158,9 +162,7 @@ class Board
   end
 
   def valid_move?(potential_move, color)
-    # debugger
     on_board?(potential_move) && (!is_piece?(potential_move) )
-    # && !dup.in_check?(color)
   end
 
   def pieces
@@ -169,9 +171,12 @@ class Board
 
   def dup
     new_board = Board.new(false)
-    new_board.grid = grid
+
+    pieces.each do |piece|
+      dup_piece = piece.class.new(piece.color, new_board, piece.pos)
+      new_board.grid[piece.pos[0]][piece.pos[1]] = dup_piece
+    end
     new_board
-    # dup.grid = grid
   end
 
   def is_piece?(position)
@@ -184,46 +189,48 @@ class Board
     [cursor, cursor_diff].transpose.map {|x| x.reduce(:+)}
   end
 
-  def render
+  def render(notifications, current_player)
     system "clear"
     if move_in_process
       render_around_piece(selected_piece)
+      notifications.each do |key, val|
+        puts "#{val}"
+      end
+      puts "current player is: #{current_player.color}"
     else
       render_around_piece(cursor)
+      notifications.each do |key, val|
+        puts "#{val}"
+      end
+      puts "current player is: #{current_player.color}"
     end
   end
 
-def render_around_piece(piece)
-  grid.each_with_index do |row, idx1|
-    row.each_with_index do |square, idx2|
-      if piece != cursor && cursor == [idx1, idx2]
-        print square.to_view.colorize(background: :red)
-      elsif piece == [idx1, idx2]
-        print square.to_view.colorize(background: :magenta)
-        # debugger
-      elsif moves_around_piece(piece).include?([idx1, idx2])
-        # p '2nd elsif'
-        print square.to_view.colorize(background: :green)
-      elsif (idx1 + idx2).even?
-        print square.to_view.colorize(background: :blue)
-      else
-        print square.to_view.colorize(background: :yellow)
+  def render_around_piece(piece)
+    grid.each_with_index do |row, idx1|
+      row.each_with_index do |square, idx2|
+        if piece != cursor && cursor == [idx1, idx2]
+          print square.to_view.colorize(background: :red)
+        elsif piece == [idx1, idx2]
+          print square.to_view.colorize(background: :magenta)
+          # debugger
+        elsif moves_around_piece(piece).include?([idx1, idx2])
+          # p '2nd elsif'
+          print square.to_view.colorize(background: :green)
+        elsif (idx1 + idx2).even?
+          print square.to_view.colorize(background: :blue)
+        else
+          print square.to_view.colorize(background: :yellow)
+        end
       end
+      puts
+
     end
-    puts
   end
-end
 
 
 
   def moves_around_piece(position)
-    # return[[2,4], [5,6], [1,0]]
-    moves = self[*position].get_all_moves(position)
-    # then prune out valid moves
-    # p moves
-    moves
+    moves = self[*position].all_moves
   end
 end
-#
-# p Knight.new(:white, Board.new).get_all_moves
-# p King.new(:white, Board.new).get_all_moves
