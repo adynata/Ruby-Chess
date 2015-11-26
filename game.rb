@@ -1,6 +1,5 @@
 require_relative 'board'
 require_relative 'player'
-require_relative 'display'
 
 require 'byebug'
 
@@ -34,12 +33,12 @@ class Game
       until valid_moves.include?(end_pos)
         get_end_pos
         end_pos = board.selected_piece
-        if end_pos == start_pos
-
-        end
+      end
+      if board[*end_pos].color
+        current_player.add_to_captured_pieces(board[*end_pos].to_view)
       end
       board.move(current_player.color, start_pos, end_pos)
-    rescue StandardError => e
+    rescue InvalidMove => e
       @display.notifications[:error] = e.message
       retry
     end
@@ -49,27 +48,32 @@ class Game
   end
 
   def get_start_pos
+    reset!
+
     begin
-      reset!
       until board.move_in_process
         display.render(current_player)
+        display.show_captured(@players)
+        display.show_notifications
         display.move_cursor(current_player.color)
       end
     rescue InvalidMove
-      @display.notifications[:error] = "Invalid move"
       retry
     end
   end
 
   def get_end_pos
+    reset!
+
     begin
       while board.move_in_process
         display.render(current_player)
+        display.show_captured(@players)
+        display.show_notifications
         display.move_cursor(current_player.color)
       end
     rescue InvalidMove
       @display.notifications[:error] = "Hey! That piece can't move there."
-      sleep(1)
       retry
     end
   end

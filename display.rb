@@ -26,18 +26,48 @@ class Display
       potential_move = get_move
     end
     if @cursor == potential_move
-      raise InvalidMove unless good_selection?(potential_move, player_color)
-      @board.move_in_process = !@board.move_in_process
-      @board.selected_piece = potential_move
+      if good_selection?(potential_move, player_color)
+        @board.move_in_process = !@board.move_in_process
+        @board.selected_piece = potential_move
+      end
     end
     @cursor = potential_move
   end
 
   def good_selection?(potential_move, player_color)
     if !@board.move_in_process
-      @board.is_piece?(potential_move) && player_color == @board[*potential_move].color
+      if !@board.is_piece?(potential_move)
+        @notifications[:error] = "You cannot select an empty place"
+        return false
+      elsif player_color != @board[*potential_move].color
+        @notifications[:error] = "You can only move a #{player_color} piece"
+        return false
+      elsif @board[*potential_move].all_moves.empty?
+        @notifications[:error] = "That piece has no moves available"
+        return false
+      else
+        return true
+      end
     else
-      moves_around_piece(@board.selected_piece).include?(potential_move)
+      if !moves_around_piece(@board.selected_piece).include?(potential_move)
+        raise InvalidMove, "That's not a place you can move to. Please try again"
+      else
+        return true
+      end
+    end
+  end
+
+  def show_captured(players)
+    players.each do |player|
+      puts
+      puts "   #{player.color} has captured: #{player.captured_pieces.join("  ")}"
+    end
+  end
+
+  def show_notifications
+    puts
+    @notifications.each do |key, val|
+      puts "         #{val}"
     end
   end
 
@@ -45,16 +75,8 @@ class Display
     system "clear"
     if @board.move_in_process
       render_around_piece(@board.selected_piece, current_player)
-      puts @notifications
-      @notifications.each do |key, val|
-        puts "         #{val}"
-      end
     else
       render_around_piece(@cursor, current_player)
-      puts @notifications
-      @notifications.each do |key, val|
-        puts "         #{val}"
-      end
     end
   end
 

@@ -5,7 +5,6 @@ class InvalidMove < StandardError
 end
 
 class Board
-  # attr_reader
   attr_accessor :cursor, :move_in_process, :selected_piece, :grid
 
   def initialize(fill_board = true)
@@ -53,53 +52,21 @@ class Board
     arr
   end
 
-  # def move_cursor(player_color)
-  #   potential_move = get_move
-  #   until on_board?(potential_move)
-  #     potential_move = get_move
-  #   end
-  #   if @cursor == potential_move
-  #     raise InvalidMove unless good_selection?(potential_move, player_color)
-  #     @move_in_process = !@move_in_process
-  #     @selected_piece = potential_move
-  #   end
-  #   @cursor = potential_move
-  # end
-  #
-  # def good_selection?(potential_move, player_color)
-  #   if !@move_in_process
-  #     is_piece?(potential_move) && player_color == self[*potential_move].color
-  #   else
-  #     moves_around_piece(@selected_piece).include?(potential_move)
-  #   end
-  # end
-
   def move(color, start_pos, end_pos)
-
     piece = self[*start_pos]
-
-    if piece.is_a?(EmptySquare)
-      raise 'from position is empty'
-    elsif piece.color != color
-      raise "you can only move your own piece"
-    elsif !piece.all_moves.include?(end_pos)
-      raise "you're not permitted to put your piece there"
-    elsif !piece.valid_moves.include?(end_pos)
-      raise "you can't move into check"
+    if !(piece.valid_moves.include?(end_pos))
+      raise InvalidMove, "you can't move into check"
     end
-    # debugger
-
     move_piece!(start_pos, end_pos)
   end
 
   def move_piece!(start_pos, end_pos)
-    # debugger
     piece = self[*start_pos]
     end_piece = self[*end_pos]
-    raise 'piece cannot move like that' unless piece.all_moves.include?(end_pos)
     self[*start_pos] = EmptySquare.new
     self[*end_pos] = piece
     piece.pos = end_pos
+
     if piece.is_a?(Pawn)
       piece.moved = true
     end
@@ -121,18 +88,13 @@ class Board
   end
 
   def in_check?(color)
-    # return false
     king_pos = find_king(color)
     pieces.each do |piece|
-      # debugger
-
       moves = []
       moves = piece.all_moves
       if moves.include?(king_pos)
-        # puts "#{color}: you're in check"
         return true
       end
-
     end
     false
   end
@@ -146,7 +108,6 @@ class Board
   end
 
   def on_board?(potential_move)
-    # p potential_move
     potential_move.all? { |pos| pos.between?(0, 7) }
   end
 
@@ -165,6 +126,7 @@ class Board
       dup_piece = piece.class.new(piece.color, new_board, piece.pos)
       new_board.grid[piece.pos[0]][piece.pos[1]] = dup_piece
     end
+
     new_board
   end
 
