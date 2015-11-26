@@ -10,7 +10,7 @@ class EmptySquare
     "   "
   end
 
-  def get_all_moves(current_position)
+  def all_moves
     []
   end
 end

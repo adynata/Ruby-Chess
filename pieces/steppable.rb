@@ -1,12 +1,24 @@
 module Steppable
-  def get_all_moves(current_position)
+
+
+  def all_moves
     moves = []
+
     deltas.each do |delta|
-#error message goes here
-      possible = translate_from_deltas(current_position, delta)
-      moves << possible if valid_move?(possible) ||
-        is_on_board_and_collided?(possible)
+
+      possible = translate_from_deltas(pos, delta)
+      if valid_move?(possible, color) || (is_on_board_and_collided?(possible) &&  board[*possible].color == opposite_color)
+        # p "opposite_color #{opposite_color}"
+        # p board[*possible].color
+        # &&
+      # board[*possible].color == opposite_color)
+        # p possible
+        moves << possible
+      end
+      # moves << possible
+#
     end
-    prune_same_colors(moves)
+    # prune_same_colors(moves)
+    moves
   end
 end
