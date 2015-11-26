@@ -19,12 +19,13 @@ class Game
     until checkmate?
       play_turn
     end
-    puts "#{current_player} is checkmated."
-    nil
-
+    puts "#{current_player.color} is checkmated."
   end
 
   def play_turn
+    # if !@display.notifications[:message]
+    #   reset!
+    # end
     begin
       get_start_pos
       start_pos = board.selected_piece
@@ -39,7 +40,7 @@ class Game
       end
       board.move(current_player.color, start_pos, end_pos)
     rescue InvalidMove => e
-      @display.notifications[:error] = e.message
+      @display.notifications[:message] = e.message
       retry
     end
     @players.rotate!
@@ -48,7 +49,9 @@ class Game
   end
 
   def get_start_pos
+
     reset!
+    # reset_check!
 
     begin
       until board.move_in_process
@@ -57,14 +60,14 @@ class Game
         display.show_notifications
         display.move_cursor(current_player.color)
       end
-    rescue InvalidMove
+    rescue InvalidSelection
       retry
     end
   end
 
   def get_end_pos
     reset!
-
+    reset_check!
     begin
       while board.move_in_process
         display.render(current_player)
@@ -72,8 +75,8 @@ class Game
         display.show_notifications
         display.move_cursor(current_player.color)
       end
-    rescue InvalidMove
-      @display.notifications[:error] = "Hey! That piece can't move there."
+    rescue InvalidSelection => e
+      @display.notifications[:error] = e.message
       retry
     end
   end
@@ -90,6 +93,10 @@ class Game
     display.notifications.delete(:error)
   end
 
+  def reset_check!
+    display.notifications.delete(:message)
+  end
+
   def uncheck!
     display.notifications.delete(:check)
   end
@@ -104,6 +111,7 @@ class Game
     else
       uncheck!
     end
+    # reset_check!
   end
 
 end

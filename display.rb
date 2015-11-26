@@ -49,8 +49,11 @@ class Display
         return true
       end
     else
-      if !moves_around_piece(@board.selected_piece).include?(potential_move)
-        raise InvalidMove, "That's not a place you can move to. Please try again"
+      if potential_move == @board.selected_piece
+        @board.move_in_process = !@board.move_in_process
+        raise InvalidMove, "select a new piece"
+      elsif !moves_around_piece(@board.selected_piece).include?(potential_move)
+        raise InvalidSelection, "That's not a place you can move to. Please try again"
       else
         return true
       end
@@ -58,10 +61,18 @@ class Display
   end
 
   def show_captured(players)
-    players.each do |player|
-      puts
-      puts "   #{player.color} has captured: #{player.captured_pieces.join("  ")}"
+    if players[0].color == :white
+      display_captures(players[0])
+      display_captures(players[1])
+    else
+      display_captures(players[1])
+      display_captures(players[0])
     end
+  end
+
+  def display_captures(player)
+    puts
+    puts "   #{player.color} has captured: #{player.captured_pieces.join("  ")}"
   end
 
   def show_notifications

@@ -4,6 +4,9 @@ require_relative 'keypress'
 class InvalidMove < StandardError
 end
 
+class InvalidSelection < StandardError
+end
+
 class Board
   attr_accessor :cursor, :move_in_process, :selected_piece, :grid
 
@@ -100,11 +103,12 @@ class Board
   end
 
   def checkmate?(current_player)
+
     color = current_player.color
+
     return false unless in_check?(color)
-    pieces.select { |p| p.color == color }.all? do |piece|
-      piece.valid_moves.empty?
-    end
+    all_pieces_of_current_player = pieces.select { |piece| piece.color == color }
+    all_pieces_of_current_player.all? { |piece| piece.valid_moves.empty? }
   end
 
   def on_board?(potential_move)
